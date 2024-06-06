@@ -18,10 +18,23 @@ public class MainManager : MonoBehaviour
     
     private bool m_GameOver = false;
 
-    
+    public Text highscore;
+    private int highScorePoint=0;
+    private string playerName;
+
+    private const string PlayerNameKey = "PlayerName";
+    private const string HighScoreKey = "HighScore";
+
+
     // Start is called before the first frame update
     void Start()
     {
+        if (PlayerPrefs.HasKey(HighScoreKey) && PlayerPrefs.HasKey(PlayerNameKey))
+        {
+            highScorePoint= PlayerPrefs.GetInt(HighScoreKey);
+            playerName = PlayerPrefs.GetString(PlayerNameKey);
+            highscore.text = "Best Score : " + playerName + " : " + highScorePoint;
+        }
         const float step = 0.6f;
         int perLine = Mathf.FloorToInt(4.0f / step);
         
@@ -30,7 +43,7 @@ public class MainManager : MonoBehaviour
         {
             for (int x = 0; x < perLine; ++x)
             {
-                Vector3 position = new Vector3(-1.5f + step * x, 2.5f + i * 0.3f, 0);
+                Vector3 position = new(-1.5f + step * x, 2.5f + i * 0.3f, 0);
                 var brick = Instantiate(BrickPrefab, position, Quaternion.identity);
                 brick.PointValue = pointCountArray[i];
                 brick.onDestroyed.AddListener(AddPoint);
@@ -46,7 +59,7 @@ public class MainManager : MonoBehaviour
             {
                 m_Started = true;
                 float randomDirection = Random.Range(-1.0f, 1.0f);
-                Vector3 forceDir = new Vector3(randomDirection, 1, 0);
+                Vector3 forceDir = new(randomDirection, 1, 0);
                 forceDir.Normalize();
 
                 Ball.transform.SetParent(null);
@@ -70,6 +83,12 @@ public class MainManager : MonoBehaviour
 
     public void GameOver()
     {
+        if (m_Points > highScorePoint)
+        {
+            highScorePoint = m_Points;
+            PlayerPrefs.SetInt(HighScoreKey,highScorePoint);
+            PlayerPrefs.SetString(PlayerNameKey, Saveloadsystem.instance.playerName);
+        }
         m_GameOver = true;
         GameOverText.SetActive(true);
     }
